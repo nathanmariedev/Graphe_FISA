@@ -22,9 +22,6 @@ public class AdjacencyMatrixUndirectedGraph {
     protected int nbNodes;		// Number of vertices
     protected int nbEdges;		// Number of edges/arcs
     protected int[][] matrix;	// The adjacency matrix
-
-  
-   
 	
 	//--------------------------------------------------
 	// 				Constructors
@@ -35,20 +32,23 @@ public class AdjacencyMatrixUndirectedGraph {
         this.nbNodes = 0;
         this.nbEdges = 0;
 	}
-	
+
 	public AdjacencyMatrixUndirectedGraph(int[][] mat) {
-		this.nbNodes=mat.length;
+		this.nbNodes = mat.length;
 		this.nbEdges = 0;
 		this.matrix = new int[this.nbNodes][this.nbNodes];
-		for(int i = 0; i<this.nbNodes; i++){
-			for(int j = i; j<this.nbNodes; j++){
+		for (int i = 0; i < this.nbNodes; i++) {
+			for (int j = i + 1; j < this.nbNodes; j++) {
 				this.matrix[i][j] = mat[i][j];
 				this.matrix[j][i] = mat[i][j];
-				this.nbEdges += mat[i][j];
+				if (mat[i][j] != 0) {
+					this.nbEdges++;
+				}
 			}
-		}	
+		}
 	}
-	
+
+
 	public AdjacencyMatrixUndirectedGraph(AdjacencyListUndirectedGraph g) {
 		this.nbNodes = g.getNbNodes(); 				
 		this.nbEdges = g.getNbEdges(); 				
@@ -103,22 +103,29 @@ public class AdjacencyMatrixUndirectedGraph {
      	* @return true if the edge is in the graph.
      	*/
 	public boolean isEdge(int x, int y) {
-		// A completer
-		return true;		
+		return this.matrix[x][y]!=0;
 	}
 	
 	/**
      	* removes the edge (x,y) if there exists one between these nodes in the graph.
     	 */
 	public void removeEdge(int x, int y) {
-		// A completer
+		if (isEdge(x, y)) {
+			this.matrix[x][y]=0;
+		} else {
+			System.out.printf("Edge {%d,%d} is already removed\n", x, y);
+		}
 	}
 
 	/**
      	* adds the edge (x,y) if there is not already one.
      	*/
 	public void addEdge(int x, int y) {
-		// A completer
+		if (!isEdge(x, y)) {
+			this.matrix[x][y]=1;
+		} else {
+			System.out.printf("Edge {%d,%d} is already removed\n", x, y);
+		}
 	}
 
 	
@@ -165,7 +172,36 @@ public class AdjacencyMatrixUndirectedGraph {
 		System.out.println("\nAfter removing one edge {3,5} :");
 		am.removeEdge(3,5);
 		System.out.println(am);
-		// A completer
+
+		System.out.println("Is Edge tests :");
+		System.out.println("(0, 0) ? " + am.isEdge(0, 0) + " Should be FALSE");
+		System.out.println("(2, 0) ? " + am.isEdge(2, 0) + " Should be TRUE");
+		System.out.println("(3, 1) ? " + am.isEdge(3, 1) + " Should be TRUE");
+		System.out.println("(7, 3) ? " + am.isEdge(7, 3) + " Should be TRUE");
+		System.out.println("(4, 3) ? " + am.isEdge(4, 3) + " Should be FALSE");
+		System.out.println("/*----------------*/");
+
+		System.out.println("Remove Edge tests :");
+		am.removeEdge(0, 0);
+		System.out.println("(0,0) Should be Edge already removed");
+		am.removeEdge(2, 0);
+		System.out.println("(2,0) ? " + am.isEdge(2, 0) + " Should be FALSE");
+		am.removeEdge(3, 1);
+		System.out.println("(3,1) ? " + am.isEdge(3, 1) + " Should be FALSE");
+		am.removeEdge(7, 3);
+		System.out.println("(7,3) ? " + am.isEdge(7, 3) + " Should be FALSE");
+		System.out.println("/*----------------*/");
+
+		System.out.println("Add Edge tests :");
+		am.addEdge(0, 0);
+		System.out.println("(0,0) ? " + am.isEdge(0, 0) + " Should be TRUE");
+		am.addEdge(2, 0);
+		System.out.println("(2,0) ? " + am.isEdge(2, 0) + " Should be TRUE");
+		am.addEdge(3, 1);
+		System.out.println("(3,1) ? " + am.isEdge(3, 1) + " Should be TRUE");
+		am.addEdge(7, 3);
+		System.out.println("(7,3) ? " + am.isEdge(7, 3) + " Should be TRUE");
+		System.out.println("/*----------------*/");
 	}
 
 }

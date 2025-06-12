@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+import AdjacencyMatrix.AdjacencyMatrixUndirectedGraph;
 import GraphAlgorithms.GraphTools;
 import Nodes_Edges.Arc;
 import Nodes_Edges.DirectedNode;
@@ -129,15 +129,22 @@ public class AdjacencyListDirectedGraph {
 	 * @return true if arc (from,to) exists in the graph
  	 */
     public boolean isArc(DirectedNode from, DirectedNode to) {
-    	// A completer
-    	return false;
+        List<Arc> arcs = this.getArcs();
+        return arcs.stream().anyMatch( arc -> arc.getFirstNode().equals(from) && arc.getSecondNode().equals(to));
     }
 
     /**
 	 * Removes the arc (from,to), if it exists. And remove this arc and the inverse in the list of arcs from the two extremities (nodes)
  	 */
     public void removeArc(DirectedNode from, DirectedNode to) {
-    	// A completer
+    	boolean arcExists = this.arcs.contains(new Arc(from,to));
+        if (!arcExists) {
+            return;
+        }
+        this.arcs.remove(new Arc(from,to));
+        this.nbArcs--;
+        from.getArcSucc().remove(new Arc(from,to));
+        to.getArcPred().remove(new Arc(from,to));
     }
 
     /**
@@ -146,7 +153,14 @@ public class AdjacencyListDirectedGraph {
   	* On non-valued graph, every arc has a weight equal to 0.
  	*/
     public void addArc(DirectedNode from, DirectedNode to) {
-    	// A completer
+        boolean arcExists = this.arcs.contains(new Arc(from,to));
+        if (arcExists) {
+            return;
+        }
+        this.arcs.add(new Arc(from,to));
+        this.nbArcs++;
+        from.getArcSucc().add(new Arc(from,to));
+        to.getArcPred().add(new Arc(from,to));
     }
 
     //--------------------------------------------------
@@ -165,7 +179,13 @@ public class AdjacencyListDirectedGraph {
      */
     public int[][] toAdjacencyMatrix() {
         int[][] matrix = new int[nbNodes][nbNodes];
-     // A completer
+        for (int i = 0; i < nbNodes; i++) {
+            for (int j = 0; j < nbNodes; j++) {
+                if (this.isArc(this.getNodes().get(i), this.getNodes().get(j))) {
+                    matrix[i][j] = 1;
+                }
+            }
+        }
         return matrix;
     }
 
@@ -173,8 +193,22 @@ public class AdjacencyListDirectedGraph {
 	 * @return a new graph implementing IDirectedGraph interface which is the inverse graph of this
  	 */
     public AdjacencyListDirectedGraph computeInverse() {
-        AdjacencyListDirectedGraph g = new AdjacencyListDirectedGraph(this); // creation of a copy of the current graph. 
-        // A completer
+        AdjacencyListDirectedGraph g = new AdjacencyListDirectedGraph();
+
+        for (DirectedNode node : this.nodes) {
+            g.nodes.add(new DirectedNode(node.getLabel()));
+        }
+
+        g.nbNodes = this.nbNodes;
+        for (int i = 0; i < g.getNbNodes(); i++) {
+            DirectedNode from = this.nodes.get(i);
+            for (Arc arc : from.getArcSucc()) {
+                DirectedNode to = arc.getSecondNode();
+                DirectedNode newFrom = g.getNodes().get(to.getLabel());
+                DirectedNode newTo = g.getNodes().get(from.getLabel());
+                g.addArc(newFrom, newTo);
+            }
+        }
         return g;
     }
     
@@ -204,10 +238,79 @@ public class AdjacencyListDirectedGraph {
 
     public static void main(String[] args) {
         int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, false, 100001);
-        GraphTools.afficherMatrix(Matrix);
+        // GraphTools.afficherMatrix(Matrix);
         AdjacencyListDirectedGraph al = new AdjacencyListDirectedGraph(Matrix);
-        System.out.println(al);
-        System.out.println("(n_7,n_3) is it in the graph ? " +  al.isArc(al.getNodes().get(7), al.getNodes().get(3)));
-        // A completer
+        // System.out.println(al);
+        // System.out.println("(n_7,n_3) is it in the graph ? " +  al.isArc(al.getNodes().get(7), al.getNodes().get(3)));
+        
+        DirectedNode n0 = al.nodes.get(0);
+        DirectedNode n1 = al.nodes.get(1);
+        DirectedNode n2 = al.nodes.get(2);
+        DirectedNode n3 = al.nodes.get(3);
+        DirectedNode n4 = al.nodes.get(4);
+        DirectedNode n5 = al.nodes.get(5);
+
+        System.out.println("Is Arc tests :");
+        System.out.println("(4,0) ? " + al.isArc(n4, n0) + " Should be TRUE");
+        System.out.println("(3,2) ? " + al.isArc(n3, n2) + " Should be TRUE");
+        System.out.println("(1,4) ? " + al.isArc(n1, n4) + " Should be FALSE");
+        System.out.println("(3,3) ? " + al.isArc(n3, n3) + " Should be FALSE (because it's simple graphs)");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("Remove Arc tests :");
+        al.removeArc(n4, n0);
+        System.out.println("(1,4) ? " + al.isArc(n1, n4) + " Should be still FALSE");
+        al.removeArc(n3, n2);
+        System.out.println("(3,2) ? " + al.isArc(n3, n2) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of successors of the 'from' arc ? " + n3.getArcSucc().contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of predecessors of the 'to' arc ? " + n2.getArcPred().contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of arcs of the graph ? " + al.arcs.contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("Add Arc tests :");
+        al.addArc(n4, n0);
+        System.out.println("(4,0) ? " + al.isArc(n4, n0) + " Should be still TRUE");
+        al.addArc(n1, n4);
+        System.out.println("(1,4) ? " + al.isArc(n1, n4) + " Should be TRUE");
+        System.out.println("Is the arc added in the list of successors of the 'from' arc ? " + n1.getArcSucc().contains(new Arc(n1, n4)) + " Should be TRUE");
+        System.out.println("Is the arc added in the list of predecessors of the 'to' arc ? " + n4.getArcPred().contains(new Arc(n1, n4)) + " Should be TRUE");
+        System.out.println("Is the arc added in the list of arcs of the graph ? " + al.arcs.contains(new Arc(n1, n4)) + " Should be TRUE");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("Compute Inverse tests :");
+        AdjacencyListDirectedGraph la = al.computeInverse();
+        System.out.println("(4,1) ? " + la.isArc(n4, n1) + " Should be TRUE");
+        System.out.println("(1,4) ? " + la.isArc(n1, n4) + " Should be FALSE");
+        System.out.println("Node 2 of inverseGraph should have 2 successors ? Number of successors -> " + la.nodes.get(2).getNbSuccs());
+
+        al.addArc(n4, n1);
+        al.addArc(n1, n4);
+
+        la = al.computeInverse();
+
+        System.out.println("(4,1) ? " + la.isArc(n4, n1) + " Should be TRUE");
+        System.out.println("(1,4) ? " + la.isArc(n1, n4) + " Should be TRUE");
+
+        al.removeArc(n4, n1);
+        al.removeArc(n1, n4);
+
+        la = al.computeInverse();
+
+        System.out.println("(4,1) ? " + la.isArc(n4, n1) + " Should be FALSE");
+        System.out.println("(1,4) ? " + la.isArc(n1, n4) + " Should be FALSE");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("To Adjacency Matrix tests :");
+        al.removeArc(n4, n0);
+        System.out.println("(1,4) ? " + al.isArc(n1, n4) + " Should be still FALSE");
+        al.removeArc(n3, n2);
+        System.out.println("(3,2) ? " + al.isArc(n3, n2) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of successors of the 'from' arc ? " + n3.getArcSucc().contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of predecessors of the 'to' arc ? " + n2.getArcPred().contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("Is the arc still in the list of arcs of the graph ? " + al.arcs.contains(new Arc(n3, n2)) + " Should be FALSE");
+        System.out.println("\n/*----------------*/\n");
     }
 }
