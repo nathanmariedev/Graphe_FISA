@@ -3,6 +3,7 @@ package AdjacencyList;
 import java.util.ArrayList;
 import java.util.List;
 
+import AdjacencyMatrix.AdjacencyMatrixUndirectedGraph;
 import GraphAlgorithms.GraphTools;
 import Nodes_Edges.Edge;
 import Nodes_Edges.UndirectedNode;
@@ -30,7 +31,6 @@ public class AdjacencyListUndirectedGraph {
 		 this.nbNodes = 0;
 	     this.nbEdges = 0;
 	}
-	
 		
 	public AdjacencyListUndirectedGraph(List<UndirectedNode> nodes,List<Edge> edges) {
 		this.nodes = nodes;
@@ -82,7 +82,6 @@ public class AdjacencyListUndirectedGraph {
         	other_n.addEdge(new Edge(e.getSecondNode(),e.getFirstNode(),e.getWeight()));
         }        
     }
-    
 
     // ------------------------------------------
     // 				Accessors
@@ -119,9 +118,20 @@ public class AdjacencyListUndirectedGraph {
     /**
      * @return true if there is an edge between x and y
      */
-    public boolean isEdge(UndirectedNode x, UndirectedNode y) {      	
-        // A completer
-    	return true;
+    public boolean isEdge(UndirectedNode x, UndirectedNode y) {
+        List<Edge> edgesOfX = x.getIncidentEdges();
+
+        if (edgesOfX.size() == 0) {
+            return false;
+        }
+
+        for (Edge e : edgesOfX) {
+            if (e.getFirstNode().equals(y) || e.getSecondNode().equals(y)) {
+                return true;
+            }
+        }
+
+    	return false;
     }
 
     /**
@@ -129,8 +139,12 @@ public class AdjacencyListUndirectedGraph {
      */
     public void removeEdge(UndirectedNode x, UndirectedNode y) {
     	if(isEdge(x,y)){
-    		// A completer
-    	}
+            Edge e1 = new Edge(x,y);
+            this.edges.remove(e1);
+            this.getNodeOfList(x).getIncidentEdges().remove(e1);
+            this.getNodeOfList(y).getIncidentEdges().remove(e1);
+            this.nbEdges--;
+        }
     }
 
     /**
@@ -140,7 +154,11 @@ public class AdjacencyListUndirectedGraph {
      */
     public void addEdge(UndirectedNode x, UndirectedNode y) {
     	if(!isEdge(x,y)){
-    		// A completer
+    		Edge e1 = new Edge(x,y);
+            this.getEdges().add(e1);
+            this.getNodeOfList(x).addEdge(e1);
+            this.getNodeOfList(y).addEdge(e1);
+            this.nbEdges++;
     	}
     }
 
@@ -162,7 +180,14 @@ public class AdjacencyListUndirectedGraph {
      */
     public int[][] toAdjacencyMatrix() {
         int[][] matrix = new int[nbNodes][nbNodes];
-        // A completer
+        for (int i = 0; i < nbNodes; i++) {
+            for (int j = 0; j < nbNodes; j++) {
+                if (this.isEdge(this.getNodes().get(i), this.getNodes().get(j))) {
+                    matrix[i][j] = 1;
+                    matrix[j][i] = 1;
+                }
+            }
+        }
         return matrix;
     }
 
@@ -188,13 +213,64 @@ public class AdjacencyListUndirectedGraph {
 
     public static void main(String[] args) {
         int[][] mat = GraphTools.generateGraphData(10, 20, false, true, false, 100001);
-        GraphTools.afficherMatrix(mat);
+
+        //GraphTools.afficherMatrix(mat);
         AdjacencyListUndirectedGraph al = new AdjacencyListUndirectedGraph(mat);
-        System.out.println(al);        
-        System.out.println("(n_2,n_5) is it in the graph ? " +  al.isEdge(al.getNodes().get(2), al.getNodes().get(5)));
-        
-        
-        // A completer
+        //System.out.println(al);
+        //System.out.println("(n_2,n_5) is it in the graph ? " +  al.isEdge(al.getNodes().get(2), al.getNodes().get(5)));
+
+        UndirectedNode n0 = al.nodes.get(0);
+        UndirectedNode n1 = al.nodes.get(1);
+        UndirectedNode n2 = al.nodes.get(2);
+        UndirectedNode n3 = al.nodes.get(3);
+        UndirectedNode n4 = al.nodes.get(4);
+        UndirectedNode n5 = al.nodes.get(5);
+
+        System.out.println("Is Edge tests :");
+        System.out.println("{0,1} ? " + al.isEdge(n0, n1) + " Should be FALSE");
+        System.out.println("{2,0} ? " + al.isEdge(n0, n1) + " Should be FALSE");
+        System.out.println("{2,1} ? " + al.isEdge(n2, n1) + " Should be TRUE");
+        System.out.println("{0,3} ? " + al.isEdge(n0, n3) + " Should be TRUE");
+        System.out.println("{3,0} ? " + al.isEdge(n3, n0) + " Should be also TRUE");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("Remove Edge tests :");
+        al.removeEdge(n0, n1);
+        System.out.println("{0,1} ? " + al.isEdge(n0, n1) + " Should be still FALSE");
+
+        al.removeEdge(n2, n1);
+        System.out.println("{2,1} ? " + al.isEdge(n2, n1) + " Should be FALSE");
+        System.out.println("{1,2} ? " + al.isEdge(n1, n2) + " Should be FALSE");
+        System.out.println("{0,3} ? " + al.isEdge(n0, n3) + " Should be TRUE");
+        System.out.println("{3,0} ? " + al.isEdge(n3, n0) + " Should be also TRUE");
+        System.out.println("Is a new edge removed to incident list of the other edge ? " + n2.getIncidentEdges().stream().anyMatch(e -> e.getFirstNode().equals(n1) || e.getSecondNode().equals(n1)) + " Should be false");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("Add Edge tests :");
+        al.addEdge(n0, n1);
+        System.out.println("{0,1} ? " + al.isEdge(n0, n1) + " Should be TRUE");
+        System.out.println("{1,0} ? " + al.isEdge(n1, n0) + " Should be TRUE");
+        al.addEdge(n0, n3);
+        System.out.println("{0,3} ? " + al.isEdge(n0, n3) + " Should be still TRUE");
+        System.out.println("{3,0} ? " + al.isEdge(n3, n0) + " Should be still TRUE");
+        al.addEdge(n0, n5);
+        System.out.println("Is a new edge added to incident list of the other edgr ? " + n0.getIncidentEdges().stream().anyMatch(e -> e.getFirstNode().equals(n5) || e.getSecondNode().equals(n5)) + " Should be true");
+
+        System.out.println("\n/*----------------*/\n");
+
+        System.out.println("To Adjacency Matrix tests :");
+        AdjacencyMatrixUndirectedGraph adjacencyMatrix = new AdjacencyMatrixUndirectedGraph(al.toAdjacencyMatrix());
+        //System.out.println(adjacencyMatrix);
+
+        System.out.println("{0,3} ? " + adjacencyMatrix.isEdge(0, 1) + " Should be TRUE");
+        System.out.println("{2,9} ? " + adjacencyMatrix.isEdge(2, 9) + " Should be TRUE");
+        System.out.println("{2,8} ? " + adjacencyMatrix.isEdge(2, 8) + " Should be FALSE");
+        System.out.println("{6,3} ? " + adjacencyMatrix.isEdge(6, 3) + " Should be FALSE");
+        System.out.println("{6,5} ? " + adjacencyMatrix.isEdge(6, 5) + " Should be TRUE");
+
+        System.out.println("\n/*----------------*/\n");
     }
 
 }
