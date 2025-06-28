@@ -1,28 +1,15 @@
 package GraphAlgorithms;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import AdjacencyList.AdjacencyListDirectedGraph;
-import AdjacencyList.AdjacencyListDirectedValuedGraph;
-import AdjacencyList.AdjacencyListUndirectedValuedGraph;
-import Collection.Triple;
+import Nodes_Edges.Arc;
 import Nodes_Edges.DirectedNode;
-import Nodes_Edges.UndirectedNode;
 
 public class GraphToolsList  extends GraphTools {
-
-	private static int _DEBBUG =0;
-
-	private static int[] visite;
-	private static int[] debut;
-	private static int[] fin;
-	private static List<Integer> order_CC;
-	private static int cpt=0;
 
 	//--------------------------------------------------
 	// 				Constructors
@@ -41,8 +28,68 @@ public class GraphToolsList  extends GraphTools {
 	// ------------------------------------------
 	// 				Methods
 	// ------------------------------------------
+	
+	public static void BFS(AdjacencyListDirectedGraph al) {
+		
+		int s = 0;
+		int n = al.getNbNodes();
+        boolean[] mark = new boolean[n];
 
-	// A completer
+        for (int v = 0; v < n; v++) {
+            mark[v] = false;
+        }
+
+        mark[s] = true;
+
+        Queue<Integer> fifo = new LinkedList<>();
+        fifo.add(s);
+
+        while (!fifo.isEmpty()) {
+            int v = fifo.poll();
+            System.out.print(v + " ");
+            DirectedNode currentNode = al.getNodes().get(v);
+
+            for (Arc arc : currentNode.getArcSucc()) {
+                DirectedNode neighbor = arc.getSecondNode();
+                int w = neighbor.getLabel();
+
+                if (!mark[w]) {
+                    mark[w] = true;
+                    fifo.add(w);
+                }
+            }
+        }
+        
+        System.out.println();
+		
+	}
+	
+	public static void explorerSommet(DirectedNode s, Set<DirectedNode> atteint) {
+		
+	    atteint.add(s);
+	    System.out.print(s.getLabel() + " ");
+
+	    for (Arc arc : s.getArcSucc()) {
+	        DirectedNode voisin = arc.getSecondNode();
+	        if (!atteint.contains(voisin)) {
+	            explorerSommet(voisin, atteint);
+	        }
+	    }
+	    
+	}
+	
+	public static void explorerGraphe(AdjacencyListDirectedGraph graph) {
+		
+	    Set<DirectedNode> atteint = new HashSet<DirectedNode>();
+
+	    for (DirectedNode s : graph.getNodes()) {
+	        if (!atteint.contains(s)) {
+	            explorerSommet(s, atteint);
+	        }
+	    }
+
+	    System.out.println();
+	}
 
 
 	public static void main(String[] args) {
@@ -51,6 +98,10 @@ public class GraphToolsList  extends GraphTools {
 		AdjacencyListDirectedGraph al = new AdjacencyListDirectedGraph(Matrix);
 		System.out.println(al);
 
-		// A completer
+		System.out.println("Ordre de visite avez le BFS à partir du sommet 0 :");
+        GraphToolsList.BFS(al);
+        
+        System.out.println("Ordre de visite avez le DFS :");
+        GraphToolsList.explorerGraphe(al);
 	}
 }
