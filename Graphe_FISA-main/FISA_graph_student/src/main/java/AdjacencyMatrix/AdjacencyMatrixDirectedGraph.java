@@ -119,6 +119,45 @@ public class AdjacencyMatrixDirectedGraph {
 		return this.matrix[from][to]>0;
 	}
 
+	public boolean isConnectedFrom(int start) {
+		boolean[] visited = new boolean[this.nbNodes];
+		dfs(start, visited);
+
+		for (boolean v : visited) {
+			if (!v) return false; // Un sommet non atteint => pas connexe
+		}
+		return true;
+	}
+
+	private void dfs(int node, boolean[] visited) {
+		visited[node] = true;
+		for (int neighbor : getSuccessors(node)) {
+			if (!visited[neighbor]) {
+				dfs(neighbor, visited);
+			}
+		}
+	}
+
+	public boolean isStronglyConnected() {
+		boolean[] visited = new boolean[this.nbNodes];
+
+		// DFS normal
+		dfs(0, visited);
+		for (boolean v : visited) {
+			if (!v) return false;
+		}
+
+		// DFS sur le graphe inverse
+		AdjacencyMatrixDirectedGraph reversed = this.computeInverse();
+		visited = new boolean[this.nbNodes];
+		reversed.dfs(0, visited);
+		for (boolean v : visited) {
+			if (!v) return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * removes the arc (from,to) if there exists one between these nodes in the graph.
 	 */
