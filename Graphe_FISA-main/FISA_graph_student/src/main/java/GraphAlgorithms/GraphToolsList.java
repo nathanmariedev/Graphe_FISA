@@ -43,34 +43,34 @@ public class GraphToolsList  extends GraphTools {
 		
 		int s = 0;
 		int n = al.getNbNodes();
-        boolean[] mark = new boolean[n];
+		boolean[] mark = new boolean[n];
 
-        for (int v = 0; v < n; v++) {
-            mark[v] = false;
-        }
+		for (int v = 0; v < n; v++) {
+			mark[v] = false;
+		}
 
-        mark[s] = true;
+		mark[s] = true;
 
-        Queue<Integer> fifo = new LinkedList<>();
-        fifo.add(s);
+		Queue<Integer> fifo = new LinkedList<>();
+		fifo.add(s);
 
-        while (!fifo.isEmpty()) {
-            int v = fifo.poll();
-            System.out.print(v + " ");
-            DirectedNode currentNode = al.getNodes().get(v);
+		while (!fifo.isEmpty()) {
+			int v = fifo.poll();
+			System.out.print(v + " ");
+			DirectedNode currentNode = al.getNodes().get(v);
 
-            for (Arc arc : currentNode.getArcSucc()) {
-                DirectedNode neighbor = arc.getSecondNode();
-                int w = neighbor.getLabel();
+			for (Arc arc : currentNode.getArcSucc()) {
+				DirectedNode neighbor = arc.getSecondNode();
+				int w = neighbor.getLabel();
 
-                if (!mark[w]) {
-                    mark[w] = true;
-                    fifo.add(w);
-                }
-            }
-        }
-        
-        System.out.println();
+				if (!mark[w]) {
+					mark[w] = true;
+					fifo.add(w);
+				}
+			}
+		}
+
+		System.out.println();
 		
 	}
 	
@@ -78,19 +78,19 @@ public class GraphToolsList  extends GraphTools {
 		
 		visite[s.getLabel()] = 1;
 		debut[s.getLabel()] = cpt++;
-	    atteint.add(s);
-	    System.out.print(s.getLabel() + " ");
+		atteint.add(s);
+		System.out.print(s.getLabel() + " ");
 
-	    for (Arc arc : s.getArcSucc()) {
-	        DirectedNode voisin = arc.getSecondNode();
-	        if (!atteint.contains(voisin)) {
-	            explorerSommet(voisin, atteint);
-	        }
-	    }
-	    
-	    visite[s.getLabel()] = 2;
-	    fin[s.getLabel()] = cpt++;
-	    order_CC.add(s.getLabel());
+		for (Arc arc : s.getArcSucc()) {
+			DirectedNode voisin = arc.getSecondNode();
+			if (!atteint.contains(voisin)) {
+				explorerSommet(voisin, atteint);
+			}
+		}
+
+		visite[s.getLabel()] = 2;
+		fin[s.getLabel()] = cpt++;
+		order_CC.add(s.getLabel());
 	}
 	
 	public static void explorerGraphe(AdjacencyListDirectedGraph graph) {
@@ -98,27 +98,27 @@ public class GraphToolsList  extends GraphTools {
 		int n = graph.getNbNodes();
 		visite = new int[n];
 		debut = new int[n];
-	    fin = new int[n];
-	    Set<DirectedNode> atteint = new HashSet<DirectedNode>();
-	    order_CC = new ArrayList<Integer>();
+		fin = new int[n];
+		Set<DirectedNode> atteint = new HashSet<DirectedNode>();
+		order_CC = new ArrayList<Integer>();
 
-	    for (DirectedNode s : graph.getNodes()) {
-	        if (!atteint.contains(s)) {
-	            explorerSommet(s, atteint);
-	        }
-	    }
-	    
-	    String debuts = "";
-	    String fins = "";
-	    for (int i = 0; i < n; i++) {
-	    	debuts += debut[i] + " ";
-	    	fins += fin[i] + " ";
-	    }
+		for (DirectedNode s : graph.getNodes()) {
+			if (!atteint.contains(s)) {
+				explorerSommet(s, atteint);
+			}
+		}
 
-	    System.out.println("\nDébuts : " + debuts);
-	    System.out.println("Fins   : " + fins);
-	    
-	    System.out.println("Ordre de fin des sommets : " + order_CC);
+		String debuts = "";
+		String fins = "";
+		for (int i = 0; i < n; i++) {
+			debuts += debut[i] + " ";
+			fins += fin[i] + " ";
+		}
+
+		System.out.println("\nDébuts : " + debuts);
+		System.out.println("Fins   : " + fins);
+
+		System.out.println("Ordre de fin des sommets : " + order_CC);
 	}
 	
 	public static void explorerSommetBis(DirectedNode s, Set<Integer> atteint) {
@@ -166,12 +166,12 @@ public class GraphToolsList  extends GraphTools {
 		System.out.println(al);
 
 		System.out.println("Ordre de visite avez le BFS à partir du sommet 0 :");
-        GraphToolsList.BFS(al);
-        
-        System.out.println("\nOrdre de visite avez le DFS :");
-        GraphToolsList.explorerGraphe(al);
-        
-        System.out.println("\nComposantes fortement connexes :");
-        GraphToolsList.explorerGrapheBis(inverse_al);
+		GraphToolsList.BFS(al);
+
+		System.out.println("\nOrdre de visite avez le DFS :");
+		GraphToolsList.explorerGraphe(al);
+
+		System.out.println("\nComposantes fortement connexes :");
+		GraphToolsList.explorerGrapheBis(inverse_al);
 	}
 }
