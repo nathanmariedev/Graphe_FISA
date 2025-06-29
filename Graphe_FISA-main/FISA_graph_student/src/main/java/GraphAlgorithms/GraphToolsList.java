@@ -1,7 +1,9 @@
 package GraphAlgorithms;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -10,6 +12,14 @@ import Nodes_Edges.Arc;
 import Nodes_Edges.DirectedNode;
 
 public class GraphToolsList  extends GraphTools {
+	
+	private static int _DEBBUG =0;
+
+	private static int[] visite;
+	private static int[] debut;
+	private static int[] fin;
+	private static List<Integer> order_CC;
+	private static int cpt=0;
 
 	//--------------------------------------------------
 	// 				Constructors
@@ -66,6 +76,8 @@ public class GraphToolsList  extends GraphTools {
 	
 	public static void explorerSommet(DirectedNode s, Set<DirectedNode> atteint) {
 		
+		visite[s.getLabel()] = 1;
+		debut[s.getLabel()] = cpt++;
 	    atteint.add(s);
 	    System.out.print(s.getLabel() + " ");
 
@@ -76,19 +88,37 @@ public class GraphToolsList  extends GraphTools {
 	        }
 	    }
 	    
+	    visite[s.getLabel()] = 2;
+	    fin[s.getLabel()] = cpt++;
+	    order_CC.add(s.getLabel());
 	}
 	
 	public static void explorerGraphe(AdjacencyListDirectedGraph graph) {
 		
+		int n = graph.getNbNodes();
+		visite = new int[n];
+		debut = new int[n];
+	    fin = new int[n];
 	    Set<DirectedNode> atteint = new HashSet<DirectedNode>();
+	    order_CC = new ArrayList<Integer>();
 
 	    for (DirectedNode s : graph.getNodes()) {
 	        if (!atteint.contains(s)) {
 	            explorerSommet(s, atteint);
 	        }
 	    }
+	    
+	    String debuts = "";
+	    String fins = "";
+	    for (int i = 0; i < n; i++) {
+	    	debuts += debut[i] + " ";
+	    	fins += fin[i] + " ";
+	    }
 
-	    System.out.println();
+	    System.out.println("\nDébuts : " + debuts);
+	    System.out.println("Fins   : " + fins);
+	    
+	    System.out.println("Ordre de fin des sommets : " + order_CC);
 	}
 
 
@@ -101,7 +131,7 @@ public class GraphToolsList  extends GraphTools {
 		System.out.println("Ordre de visite avez le BFS à partir du sommet 0 :");
         GraphToolsList.BFS(al);
         
-        System.out.println("Ordre de visite avez le DFS :");
+        System.out.println("\nOrdre de visite avez le DFS :");
         GraphToolsList.explorerGraphe(al);
 	}
 }
