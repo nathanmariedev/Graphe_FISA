@@ -120,12 +120,49 @@ public class GraphToolsList  extends GraphTools {
 	    
 	    System.out.println("Ordre de fin des sommets : " + order_CC);
 	}
+	
+	public static void explorerSommetBis(DirectedNode s, Set<Integer> atteint) {
+	    visite[s.getLabel()] = 1;
+	    debut[s.getLabel()] = cpt++;
+	    atteint.add(s.getLabel());
+	    System.out.print(s.getLabel() + " ");
+
+	    for (Arc arc : s.getArcSucc()) {
+	        DirectedNode voisin = arc.getSecondNode();
+	        if (!atteint.contains(voisin.getLabel())) {
+	            explorerSommetBis(voisin, atteint);
+	        }
+	    }
+
+	    visite[s.getLabel()] = 2;
+	    fin[s.getLabel()] = cpt++;
+	}
+	
+	public static void explorerGrapheBis(AdjacencyListDirectedGraph inverse) {
+	    int n = inverse.getNbNodes();
+	    visite = new int[n];
+	    debut = new int[n];
+	    fin = new int[n];
+	    cpt = 0;
+	    Set<Integer> atteint = new HashSet<>();
+
+	    for (int i = order_CC.size() - 1; i >= 0; i--) {
+	        int nodeId = order_CC.get(i);
+	        DirectedNode s = inverse.getNodes().get(nodeId);
+	        if (!atteint.contains(s.getLabel())) {
+	            System.out.println("Nouvelle composante :");
+	            explorerSommetBis(s, atteint);
+	            System.out.println();
+	        }
+	    }
+	}
 
 
 	public static void main(String[] args) {
 		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 100001);
 		GraphTools.afficherMatrix(Matrix);
 		AdjacencyListDirectedGraph al = new AdjacencyListDirectedGraph(Matrix);
+		AdjacencyListDirectedGraph inverse_al = al.computeInverse();
 		System.out.println(al);
 
 		System.out.println("Ordre de visite avez le BFS à partir du sommet 0 :");
@@ -133,5 +170,8 @@ public class GraphToolsList  extends GraphTools {
         
         System.out.println("\nOrdre de visite avez le DFS :");
         GraphToolsList.explorerGraphe(al);
+        
+        System.out.println("\nComposantes fortement connexes :");
+        GraphToolsList.explorerGrapheBis(inverse_al);
 	}
 }
